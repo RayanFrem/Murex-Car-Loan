@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Loan Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #error {
+            color: red;
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+
+        #result {
+            margin-top: 20px;
+            display: none;
+        }
+
+        #result h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #result p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Car Loan Calculator</h1>
+        <form id="loanForm">
+            <label for="carPrice">Car Price (USD):</label>
+            <input type="number" id="carPrice" name="carPrice" required>
+
+            <label for="isUsed">Is the car used?</label>
+            <input type="checkbox" id="isUsed" name="isUsed">
+
+            <label for="downPayment">Minimum Down Payment (USD):</label>
+            <input type="number" id="downPayment" name="downPayment" required>
+
+            <button type="button" onclick="calculateLoan()">Calculate</button>
+        </form>
+        
+        <div id="result">
+            <h2>Loan Details</h2>
+            <p>Minimum Down Payment: $<span id="minDownPayment"></span></p>
+            <p>Monthly Payment: $<span id="monthlyPayment"></span></p>
+            <p>Total Paid with Interest: $<span id="totalPaid"></span></p>
+            <p>Your monthly salary should be at least: $<span id="minSalary"></span></p>
+        </div>
+        
+        <div id="error" class="error"></div>
+    </div>
+    <script>
+        function calculateLoan() {
+            const carPrice = parseFloat(document.getElementById('carPrice').value);
+            const isUsed = document.getElementById('isUsed').checked;
+            const interestRate = isUsed ? 6.5 : 5.4;
+            const minDownPayment = carPrice * 0.3;
+
+            let downPaymentInput = document.getElementById('downPayment');
+            let downPayment = parseFloat(downPaymentInput.value);
+
+            const errorDiv = document.getElementById('error');
+
+            // Validation checks
+            if (carPrice <= 0) {
+                errorDiv.innerText = "Car price must be a positive value.";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (downPayment < minDownPayment) {
+                downPayment = minDownPayment;
+                downPaymentInput.value = downPayment.toFixed(2);
+            }
+
+            if (downPayment < 0) {
+                errorDiv.innerText = "Down payment cannot be a negative value.";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (carPrice < downPayment) {
+                errorDiv.innerText = "Car price cannot be lower than the down payment.";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Clear error if all validations pass
+            errorDiv.style.display = 'none';
+
+            const loanAmount = carPrice - downPayment;
+            const numberOfYears = 3;
+
+            // Calculate compound interest
+            const totalAmountWithInterest = loanAmount * Math.pow(1 + (interestRate / 100), numberOfYears);
+            const monthlyPayment = totalAmountWithInterest / (numberOfYears * 12);
+            const totalPaid = monthlyPayment * numberOfYears * 12 + downPayment;
+            const minSalary = monthlyPayment * 3;
+
+            document.getElementById('minDownPayment').innerText = minDownPayment.toFixed(2);
+            document.getElementById('monthlyPayment').innerText = monthlyPayment.toFixed(2);
+            document.getElementById('totalPaid').innerText = totalPaid.toFixed(2);
+            document.getElementById('minSalary').innerText = minSalary.toFixed(2);
+
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
